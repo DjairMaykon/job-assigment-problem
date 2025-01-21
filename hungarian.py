@@ -7,34 +7,32 @@ import argparse
 
 class HungarianAlgorithm:
     # [Previous class implementation remains the same]
-    def __init__(self, n1: int, n2: int):
-        self.n1 = n1
-        self.n2 = n2
-        self.n = max(n1, n2)  # We need a square matrix
+    def __init__(self, nA: int, nB: int):
+        self.nA = nA
+        self.nB = nB
+        self.n = max(nA, nB)  # We need a square matrix
         self.weights = np.zeros((self.n, self.n))
-        self.X = range(self.n)
-        self.Y = range(self.n)
+        self.lA = np.zeros(self.nA)
+        self.lB = np.zeros(self.nB)
         self.matching: Dict[int, int] = {}
         
-    def set_weight(self, v1: int, v2: int, weight: float):
-        """Set weight for edge (v1,v2)"""
-        self.weights[v1][v2] = weight
+    def set_weight(self, vA: int, vB: int, weight: float):
+        """Set weight for edge (vA,vB)"""
+        self.weights[vA][vB] = weight
     
     def _initial_labeling(self) -> Dict[int, float]:
         """Create initial labeling where l(y)=0 for all y in Y and l(x)=max(w(x,y)) for all x in X"""
-        labeling = {}
-        for x in self.X:
-            labeling[x] = max(self.weights[x])
-        for y in self.Y:
-            labeling[y + self.n] = 0
-        return labeling
+        for v in range(self.nA):
+            self.lA[v] = max(self.weights[v])
+        for v in range(self.nB):
+            self.lB[v] = 0
     
     def _equality_graph(self) -> Set[Tuple[int, int]]:
         """Return edges in the equality graph (where l(u) + l(v) = w(u,v))"""
         El = set()
-        for x in self.X:
-            for y in self.Y:
-                if abs(self.labeling[x] + self.labeling[y + self.n] - self.weights[x][y]) < 1e-10:
+        for x in range(self.nA):
+            for y in range(self.nB):
+                if abs(self.lA[x] + self.lB[y]) <= abs(self.weights[x][y]):
                     El.add((x, y))
         return El
     
@@ -52,7 +50,7 @@ class HungarianAlgorithm:
             
             if u < self.n:
                 S.add(u)
-                for v in self.Y:
+                for v in range(self.nB):
                     if (u, v) in El:
                         if v not in self.matching.values():
                             path.append((u, v))
@@ -67,41 +65,40 @@ class HungarianAlgorithm:
             return False
         
         if dfs(start):
-            return path
-        return []
+            return S, T, path
+        return S, T, []
     
     def _improve_labeling(self, S: Set[int], T: Set[int]) -> None:
         """Improve the current labeling"""
         delta = float('inf')
         for x in S:
-            for y in self.Y:
+            for y in range(self.nB):
                 if y not in T:
                     delta = min(delta, 
-                              self.labeling[x] + self.labeling[y + self.n] - self.weights[x][y])
+                              self.lA[x] + self.lB[y] - self.weights[x][y])
         
         for x in S:
-            self.labeling[x] -= delta
+            self.lA[x] -= delta
         for y in T:
-            self.labeling[y + self.n] += delta
+            self.lB[y] += delta
     
     def solve(self) -> Tuple[Dict[int, int], float]:
         """Find maximum weight perfect matching using Hungarian algorithm"""
-        self.labeling = self._initial_labeling()
+        self._initial_labeling()
         
-        while len(self.matching) < min(self.n1, self.n2):
-            unmatched = set(range(self.n1)) - set(self.matching.keys())
+        while len(self.matching) < min(self.nA, self.nB):
+            unmatched = set(range(self.nA)) - set(self.matching.keys())
             u = next(iter(unmatched))
             
             El = self._equality_graph()
-            path = self._find_augmenting_path(u, El)
-            
+            S, T, path = self._find_augmenting_path(u, El)
+            print('1a')
             if path:
                 for x, y in path:
                     self.matching[x] = y
             else:
-                S = set()
-                T = set()
                 self._improve_labeling(S, T)
+        print('1B')
         
         total_weight = sum(self.weights[x][y] for x, y in self.matching.items())
         return self.matching, total_weight
