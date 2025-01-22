@@ -93,10 +93,10 @@ def run_experiment(sizes, densities, weight_ranges, instances_per_config=3):
         
         # Add summary statistics
         summary = df.groupby(['N1', 'N2', 'Density']).agg({
-            'Matching Size': ['mean', 'std'],
-            'Total Weight': ['mean', 'std'],
-            'Algorithm Time (s)': ['mean', 'std'],
-            'Total Time (s)': ['mean', 'std']
+            'Matching Size': ['mean', 'max'],
+            'Total Weight': ['mean', 'max'],
+            'Algorithm Time (s)': ['mean', 'max'],
+            'Total Time (s)': ['mean', 'max']
         }).round(4)
         
         # Save both detailed results and summary to different sheets
@@ -116,11 +116,14 @@ def main():
     # Configuration for experiments
     sizes = [
         (50, 50),
-        (100, 100),
-        (250, 250)
+        # (50, 40),
+        # (100, 100),
+        # (100, 80),
+        # (250, 250),
+        # (250, 300),
     ]
     
-    densities = [0.2, 0.3, 0.4, 0.6, 0.7, 0.8]
+    densities = [0.2, 0.3, 0.6, 0.7, 0.9]
     
     weight_ranges = [
         (1, 10),
