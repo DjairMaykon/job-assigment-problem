@@ -135,6 +135,54 @@ for file in instances/*; do
 done
 ```
 
+## Script de Experimentos
+
+O script `teste.py` permite executar experimentos com múltiplas configurações de tamanhos de grafos, densidades e faixas de pesos, automatizando a geração de instâncias, execução do algoritmo húngaro e coleta de resultados.
+
+### Uso do Script de Experimentos
+
+```bash
+python teste.py
+```
+
+O script utiliza configurações pré-definidas que podem ser alteradas diretamente no código. Por padrão, ele realiza os seguintes passos:
+
+1. Gera grafos bipartidos para diferentes combinações de:
+   - Tamanhos (`sizes`): Listas de tuplas (n1, n2)
+   - Densidades (`densities`): Listas de valores (0 a 1)
+   - Faixas de peso (`weight_ranges`): Listas de tuplas (peso mínimo, peso máximo)
+2. Executa o algoritmo húngaro em cada instância gerada.
+3. Salva os resultados detalhados e estatísticas resumidas em um arquivo Excel no formato `hungarian_experiments_<timestamp>.xlsx`.
+
+### Exemplos de Configuração
+
+No arquivo `teste.py`, as configurações padrão incluem:
+
+```python
+sizes = [
+    (50, 50),
+    (100, 100),
+    (250, 250),
+]
+
+densities = [0.2, 0.3, 0.4, 0.6, 0.7, 0.8]
+
+weight_ranges = [
+    (1, 10),
+    (1, 100),
+    (1, 1000)
+]
+```
+
+Para alterar, edite esses valores diretamente no script conforme necessário. O parâmetro `instances_per_config` define quantas instâncias serão geradas para cada combinação de configuração (padrão: 3).
+
+### Resultado do Script
+
+Após a execução, o script:
+- Cria instâncias temporárias em um diretório local.
+- Gera um arquivo Excel com os resultados detalhados e resumos estatísticos para cada combinação de peso.
+- Remove os arquivos temporários após a execução.
+
 ## Considerações
 
 - O gerador cria grafos não necessariamente completos, controlados pelo parâmetro `density`
@@ -146,3 +194,5 @@ done
 
 - Python 3.6 ou superior
 - NumPy
+- Pandas
+- XlsxWriter

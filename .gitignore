@@ -175,3 +175,6 @@ cython_debug/
 
 instances/
 results/
+temp_instances/
+temp_results/
+*.xlsx
